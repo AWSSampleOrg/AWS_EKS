@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: EKS
+
+# ------------------------------------------------------------#
+# Input Parameters
+# ------------------------------------------------------------#
+Parameters:
+  # Project Name Parameter
+  ProjectPrefix:
+    Type: String
+    Default: ""
+
+Resources:
+  # ------------------------------------------------------------#
+  # EKS
+  # ------------------------------------------------------------#
+  EKSCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: !Sub ${ProjectPrefix}Cluster
+      Version: 1.27
+      RoleArn: !GetAtt EKSClusterRole.Arn
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - !Ref SecurityGroupForEKSCluster
+        SubnetIds:
+          - Fn::ImportValue:
+              !Sub PrivateSubnetA
+          - Fn::ImportValue:
+              !Sub PrivateSubnetC
+
+  # ------------------------------------------------------------#
+  # IAM
+  # ------------------------------------------------------------#
+  EKSClusterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+            Effect: Allow
+            Principal:
+              Service:
+                - eks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+        - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
+      RoleName: !Sub ${ProjectPrefix}EKSClusterRole
+
+  # ------------------------------------------------------------#
+  # SecurityGroup
+  # ------------------------------------------------------------#
+  SecurityGroupForEKSCluster:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub ${ProjectPrefix}SecurityGroupForEKSCluster
+      GroupDescription: This is for SecurityGroupForEKSCluster
+      VpcId:
+        Fn::ImportValue:
+          !Sub VPC
+      SecurityGroupIngress:
+        - Description: This is for SecurityGroupForEKSCluster
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectPrefix}SecurityGroupForEKSCluster
