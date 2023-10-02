@@ -25,10 +25,8 @@ Resources:
         SecurityGroupIds:
           - !Ref SecurityGroupForEKSCluster
         SubnetIds:
-          - Fn::ImportValue:
-              !Sub PrivateSubnetA
-          - Fn::ImportValue:
-              !Sub PrivateSubnetC
+          - Fn::ImportValue: !Sub PrivateSubnetA
+          - Fn::ImportValue: !Sub PrivateSubnetC
 
   # ------------------------------------------------------------#
   # IAM
@@ -37,13 +35,13 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-            Effect: Allow
-            Principal:
-              Service:
-                - eks.amazonaws.com
-            Action: sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+              - eks.amazonaws.com
+          Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
         - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
@@ -58,8 +56,7 @@ Resources:
       GroupName: !Sub ${ProjectPrefix}SecurityGroupForEKSCluster
       GroupDescription: This is for SecurityGroupForEKSCluster
       VpcId:
-        Fn::ImportValue:
-          !Sub VPC
+        Fn::ImportValue: !Sub VPC
       SecurityGroupIngress:
         - Description: This is for SecurityGroupForEKSCluster
           FromPort: 80
@@ -68,3 +65,13 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${ProjectPrefix}SecurityGroupForEKSCluster
+
+# ------------------------------------------------------------#
+# Output
+# ------------------------------------------------------------#
+Outputs:
+  # Net Work
+  EKSClusterOutput:
+    Value: !Ref EKSCluster
+    Export:
+      Name: EKSCluster

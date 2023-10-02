@@ -6,6 +6,8 @@
     "**/CVS": true,
     "**/.DS_Store": true
   },
+  "editor.formatOnSave": true,
+  "files.insertFinalNewline": true,
   "cSpell.enabled": true,
   "cSpell.words": ["Fargate"]
 }
